@@ -1,5 +1,7 @@
 package org.aaa.web.entity;
 
+import java.util.List;
+
 public class Flights {
     private Integer id;
     private String flightCode;
@@ -14,8 +16,31 @@ public class Flights {
     private String stopAirport;
     private Integer referencePrice;
     
+    private Airports airport;//机场信息
+    private Airports landAirport;
     
     
+   
+	private List<Airports> airports;
+    
+	 public Airports getLandAirport() {
+			return landAirport;
+		}
+		public void setLandAirport(Airports landAirport) {
+			this.landAirport = landAirport;
+		}
+	public List<Airports> getAirports() {
+		return airports;
+	}
+	public void setAirports(List<Airports> airports) {
+		this.airports = airports;
+	}
+	public Airports getAirport() {
+		return airport;
+	}
+	public void setAirport(Airports airport) {
+		this.airport = airport;
+	}
 	public Integer getId() {
 		return id;
 	}

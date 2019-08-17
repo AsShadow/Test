@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="org.aaa.web.dao.flights.FlightsMapper">
+ 	 	
+ 	 	<resultMap type="Flights" id="FlightResult">
+ 	 	  <id column="flight_id" property="id"/>
+ 	 	  <result column="flight_code" property="flightCode"/>
+ 	 	  <result column="flight_date" property="flightDate"/>
+ 	 	  <result column="airline" property="airline"/>
+ 	 	  <result column="type" property="type"/>
+ 	 	  <result column="take_airport_id" property="takeAirportId"/>
+ 	 	  <result column="landing_airport_id" property="landingAirportId"/>
+ 	 	  <result column="take_time" property="takeTime"/>
+ 	 	  <result column="landing_time" property="landingTime"/>
+ 	 	  <result column="flight_time" property="flightTime"/>
+ 	 	  <result column="stop_airport" property="stopAirport"/>
+ 	 	  <result column="reference_price" property="referencePrice"/>
+ 	 	   <association property="airport" javaType="Airports"  resultMap="AirportsResult" />
+ 	 	   <association property="landAirport" javaType="Airports"  resultMap="LandAirportsResult" />
+ 	 	   <!-- <collection property="airports" ofType="Airports" resultMap="AirportsResult" /> -->
+ 	 	</resultMap>
+ 	 	
+ 	 	<resultMap type="Airports" id="AirportsResult">
+ 	 	  <id column="airport_id" property="id"/>
+ 	 	  <result column="airport_name" property="airportName"/>
+ 	 	  <result column="city_name" property="cityName"/>
+ 	 	</resultMap>
+ 	 	
+ 	 	<resultMap type="Airports" id="LandAirportsResult">
+ 	 	  <id column="lid" property="id"/>
+ 	 	  <result column="lair" property="airportName"/>
+ 	 	  <result column="lname" property="cityName"/>
+ 	 	</resultMap>
+ 	 	
+ 	 	<resultMap type="FlightTickets" id="FlightTicketsResult">
+ 	 	  <id column="ft_id" property="id"/>
+ 	 	  <result column="flight_id" property="fightId"/>
+ 	 	  <result column="flight_date" property="flightDate"/>
+ 	 	  <result column="ticket_price" property="ticketPrice"/>
+ 	 	  <result column="sell_company" property="sellCompany"/>
+ 	 	 
+ 	 	</resultMap>
+ 	 	
+ 	 	<!-- 获得航班数据 -->
+ 	 	<select id="getFlights"   resultMap="FlightResult">
+ 	 	select  
+			flight_id,flight_code,flight_date,airline,type
+			,take_airport_id,landing_airport_id,take_time,landing_time
+			,flight_time,stop_airport,reference_price
+			,takeair.airport_id,takeair.airport_name,takeair.city_name
+			,loadair.airport_id lid,loadair.airport_name lair,loadair.city_name lname
+			from flights fli left join airport takeair
+			on fli.take_airport_id=takeair.airport_id 
+			left join airport loadair
+			on fli.landing_airport_id=loadair.airport_id
+ 	 	   <where>
+ 	 	      <if test="flightDate != null and flightDate != '' ">
+ 	 	         flight_date=#{flightDate}
+ 	 	      </if>
+ 	 	      
+ 	 	       <if test="takeAirportArrayId!=null and takeAirportArrayId.size>0">
+ 	 	         and take_airport_id in 
+ 	 	         <foreach collection="takeAirportArrayId" item="takeArray" open="(" separator="," close=")" >
+ 	 	           #{takeArray}
+ 	 	         </foreach>
+ 	 	      </if>
+ 	 	         
+ 	 	   	  <if test="landingAirportArrayId!=null and  landingAirportArrayId.size>0">
+ 	 	         and landing_airport_id in 
+ 	 	         <foreach collection="landingAirportArrayId" item="landArray" open="(" separator="," close=")" >
+ 	 	           #{landArray}
+ 	 	         </foreach>
+ 	 	      </if>
+ 	 	   </where>
+ 	 	   limit #{page},#{limit}
+ 	 	</select>
+ 	 	
+ 	 	<!-- 获得航班数据数量，用来分页 -->
+ 	 	<select id="getCount" resultType="Int">
+ 	 	  select count(*) from flights
+ 	 		<where>
+ 	 	      <if test="flightDate != null and flightDate != '' ">
+ 	 	         flight_date=#{flightDate}
+ 	 	      </if>
+ 	 	      
+ 	 	      <if test="takeAirportArrayId!=null and takeAirportArrayId.size>0">
+ 	 	         and take_airport_id in 
+ 	 	         <foreach collection="takeAirportArrayId" item="takeArray" open="(" separator="," close=")" >
+ 	 	           #{takeArray}
+ 	 	         </foreach>
+ 	 	      </if>
+ 	 	         
+ 	 	   	  <if test="landingAirportArrayId!=null and landingAirportArrayId.size>0">
+ 	 	         and landing_airport_id in 
+ 	 	         <foreach collection="landingAirportArrayId" item="landArray" open="(" separator="," close=")" >
+ 	 	           #{landArray}
+ 	 	         </foreach>
+ 	 	      </if>
+ 	 	   </where>
+ 	 	</select>
+ 	 	
+ 	 	
+ 	 	<select id="getAirportCity" resultType="Integer">
+ 	 	  select airport_id from airport 
+			where city_name=#{city_name}
+ 	 	</select>
+ 	 	
+ 	 	<select id="getTicket" resultMap="FlightTicketsResult">
+ 	 	 select ft_id,flight_id,flight_date,ticket_price,sell_company
+ 			from flight_tickets where flight_id = #{id}
+ 	 	
+ 	 	</select>
+ </mapper>
+    
